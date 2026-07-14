@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Growflow.</title>
+    <style>
+        /* CSS Variables for Dark Emerald Palette */
+        :root {
+            --bg-color: #061611;
+            --card-bg: #0b241b;
+            --accent-color: #10b981;
+            --accent-hover: #059669;
+            --text-main: #f3f4f6;
+            --text-muted: #9ca3af;
+            --border-color: #113f30;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        /* Container & Brand */
+        .container {
+            width: 100%;
+            max-width: 450px;
+            text-align: center;
+        }
+
+        .brand {
+            font-size: 2rem;
+            font-weight: 800;
+            letter-spacing: -0.05em;
+            color: var(--text-main);
+            margin-bottom: 2rem;
+        }
+
+        .brand span {
+            color: var(--accent-color);
+        }
+
+        /* Form Card */
+        .card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            padding: 2.5rem;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+        }
+
+        .card h2 {
+            font-size: 1.25rem;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .card p {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-bottom: 1.5rem;
+        }
+
+        /* Inputs & Buttons */
+        .form-group {
+            margin-bottom: 1.25rem;
+            text-align: left;
+        }
+
+        label {
+            display: block;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
+        }
+
+        input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            background-color: rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            color: var(--text-main);
+            font-size: 1rem;
+            transition: border-color 0.2s, outline 0.2s;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--accent-color);
+        }
+
+        button {
+            width: 100%;
+            padding: 0.75rem;
+            background-color: var(--accent-color);
+            border: none;
+            border-radius: 6px;
+            color: var(--bg-color);
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.1s;
+        }
+
+        button:hover {
+            background-color: var(--accent-hover);
+        }
+
+        button:active {
+            transform: scale(0.98);
+        }
+
+        button:disabled {
+            background-color: var(--border-color);
+            color: var(--text-muted);
+            cursor: not-allowed;
+        }
+
+        /* Popup / Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(3, 10, 8, 0.85);
+            backdrop-filter: blur(4px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+            z-index: 1000;
+            padding: 20px;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .modal {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            width: 100%;
+            max-width: 600px;
+            max-height: 80vh;
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+            transform: translateY(20px);
+            transition: transform 0.3s ease;
+        }
+
+        .modal-overlay.active .modal {
+            transform: translateY(0);
+        }
+
+        .modal-header {
+            padding: 1.25rem 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 1.5rem;
+            cursor: pointer;
+            width: auto;
+            padding: 0;
+        }
+
+        .close-btn:hover {
+            color: var(--text-main);
+        }
+
+        .modal-body {
+            padding: 1.5rem;
+            overflow-y: auto;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            text-align: left;
+        }
+
+        .prompt-content {
+            background-color: rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--border-color);
+            padding: 1rem;
+            border-radius: 6px;
+            white-space: pre-wrap; /* Keeps formatting and line breaks */
+            font-family: inherit;
+        }
+
+        .modal-footer {
+            padding: 1rem 1.5rem;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            gap: 1rem;
+        }
+
+        .copy-btn {
+            flex: 1;
+        }
+
+        .secondary-btn {
+            background-color: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-muted);
+        }
+
+        .secondary-btn:hover {
+            background-color: rgba(255, 255, 255, 0.05);
+            color: var(--text-main);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="brand">Growflow<span>.</span></div>
+        
+        <div class="card">
+            <h2>Unlock the Strategy Prompt</h2>
+            <p>Enter your details below to get instant access to our world-class YouTube Clip Strategy system prompt.</p>
+            
+            <form id="leadForm">
+                <div class="form-group">
+                    <label for="name">Name</label>
+                    <input type="text" id="name" name="Name" required placeholder="John Doe">
+                </div>
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+                    <input type="email" id="email" name="Email" required placeholder="john@example.com">
+                </div>
+                <button type="submit" id="submitBtn">Get Prompt</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal">
+            <div class="modal-header">
+                <span class="modal-title">Your Copy-Paste Prompt</span>
+                <button class="close-btn" id="closeModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="prompt-content" id="promptText">You are a world-class YouTube clip strategist and short-form content editor.
+Your job is to analyze long-form YouTube transcripts that include timestamps and identify the strongest standalone clips.
+I will provide you with a transcript from one of my YouTube videos or one of my client’s YouTube videos. The transcript will contain timestamps.
+Your task is to extract the best clips that meet the following criteria:
+
+Clip Length
+Each clip must be between 3 and 4 minutes long.
+Never suggest clips shorter than 3 minutes.
+Never suggest clips longer than 4 minutes.
+Aim for clips around 3:30 whenever possible.
+The clip should begin and end naturally without feeling abruptly cut.
+
+Standalone Value
+Every clip must work completely on its own.
+The viewer should not need any information from earlier or later in the video to understand the message. Someone discovering the clip for the first time should immediately understand:
+- The problem.
+- The solution.
+- The lesson.
+- Why it matters.
+
+Content Quality
+Only select clips that contain:
+- Strong opinions.
+- Practical advice.
+- Contrarian ideas.
+- Valuable lessons.
+- Clear frameworks.
+- Interesting stories.
+- Mistakes and lessons learned.
+- Strong business, marketing, or mindset insights.
+
+Avoid:
+- Introductions.
+- Small talk.
+- Sponsor sections.
+- Repeated points.
+- Filler.
+- Long transitions.
+- Setup that requires additional context.
+
+What Makes a Great Clip
+The ideal clip makes viewers think:
+“This is valuable.”
+“I never thought about it this way.”
+“I need to hear more from this person.”
+“I should follow or subscribe.”
+
+Prioritize:
+- High information density.
+- Strong emotional reactions.
+- Polarizing opinions.
+- Memorable statements.
+- Actionable advice.
+- Clear takeaways.
+
+Output Format
+Clip #1
+Title: [Short compelling title]
+Start: [Timestamp] - End: [Timestamp]
+Duration: [Length]
+Why this clip works:
+Briefly explain why this clip is valuable and why people would watch it.
+Summary:
+Provide a 1-2 sentence summary of the main idea.
+---
+Repeat this format for every clip.
+
+Only recommend the strongest clips. Quality is more important than quantity. If the video only contains two excellent clips, return two. If it contains four exceptional clips, return four.
+Your goal is not simply to find interesting moments.
+Your goal is to find 3 to 4-minute standalone pieces of content that could be uploaded individually on YouTube, and make viewers want to subscribe, follow, or consume more content from the creator and most importantly to join his private community.</div>
+            </div>
+            <div class="modal-footer">
+                <button class="secondary-btn" id="closeModalBtn">Close</button>
+                <button class="copy-btn" id="copyBtn">Copy Prompt</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Paste your Google Web App URL between the quotes below:
+        const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyD3Bm5cVMECfOwKINwYj5Se1srA_40mdGM1YqvciuWyityDmCClN7k-UckLFE7jz-Ypw/exec";
+
+        const leadForm = document.getElementById('leadForm');
+        const submitBtn = document.getElementById('submitBtn');
+        const modalOverlay = document.getElementById('modalOverlay');
+        const closeModal = document.getElementById('closeModal');
+        const closeModalBtn = document.getElementById('closeModalBtn');
+        const copyBtn = document.getElementById('copyBtn');
+        const promptText = document.getElementById('promptText');
+
+        // Handle Form Submission
+        leadForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Disable button and change text to show progress
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Sending...';
+
+            const formData = new FormData(leadForm);
+
+            // Send form data asynchronously to your Google Sheet without reloading the page
+            fetch(GOOGLE_SCRIPT_URL, {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => {
+                // Instantly trigger modal popup
+                modalOverlay.classList.add('active');
+                
+                // Reset form inputs and button
+                leadForm.reset();
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Get Prompt';
+            })
+            .catch(error => {
+                console.error('Error!', error.message);
+                alert('Something went wrong. Please check your network connection.');
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Get Prompt';
+            });
+        });
+
+        // Close Modal Functions
+        function hideModal() {
+            modalOverlay.classList.remove('active');
+            // Reset copy button styling
+            copyBtn.textContent = 'Copy Prompt';
+            copyBtn.style.backgroundColor = 'var(--accent-color)';
+        }
+
+        closeModal.addEventListener('click', hideModal);
+        closeModalBtn.addEventListener('click', hideModal);
+        
+        // Close modal if user clicks outside of the active modal card
+        modalOverlay.addEventListener('click', function(e) {
+            if (e.target === modalOverlay) {
+                hideModal();
+            }
+        });
+
+        // Copy Text Functionality
+        copyBtn.addEventListener('click', function() {
+            navigator.clipboard.writeText(promptText.innerText.trim())
+                .then(() => {
+                    copyBtn.textContent = 'Copied!';
+                    copyBtn.style.backgroundColor = '#059669'; // Darker green transition
+                })
+                .catch(err => {
+                    console.error('Failed to copy text: ', err);
+                    alert('Could not auto-copy. Please select and copy manually.');
+                });
+        });
+    </script>
+</body>
+</html>
